@@ -4,9 +4,7 @@ import { sendMockMessage } from './mockApi';
 
 // Using a proxy to avoid CORS issues in development
 // The proxy is configured in src/setupProxy.js
-const API_URL = process.env.NODE_ENV === 'development' 
-  ? '/api/messages'  // This will be proxied to https://api.anthropic.com/v1/messages
-  : 'https://api.anthropic.com/v1/messages';
+const API_URL = '/api';  // This will use the proxy defined in setupProxy.js
 const API_KEY = process.env.REACT_APP_CLAUDE_API_KEY || '';
 
 if (!API_KEY) {
@@ -61,7 +59,7 @@ export const sendMessage = async (messages: Message[]): Promise<ApiResponse> => 
       content: msg.content
     }));
 
-    const response = await api.post('', {
+    const response = await api.post('/messages', {
       model: 'claude-3-opus-20240229',
       messages: formattedMessages,
       max_tokens: 4000,
@@ -86,9 +84,7 @@ export const sendMessage = async (messages: Message[]): Promise<ApiResponse> => 
     return processedResponse;
   } catch (error) {
     console.error('Error sending message to Claude API:', error);
-    // Fall back to mock API if real API fails
-    console.log('Falling back to mock API due to error');
-    return await sendMockMessage(messages);
+    throw error; // Don't fall back to mock API, propagate the error instead
   }
 };
 

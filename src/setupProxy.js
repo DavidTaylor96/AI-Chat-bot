@@ -9,6 +9,10 @@ module.exports = function(app) {
       pathRewrite: {
         '^/api': '/v1',
       },
+      onProxyReq: function(proxyReq, req, res) {
+        // Log request path
+        console.log('Proxy request path:', proxyReq.path);
+      },
       onProxyRes: function(proxyRes, req, res) {
         // Log response status
         console.log('Proxy response status:', proxyRes.statusCode);
