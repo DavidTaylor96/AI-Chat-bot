@@ -1,46 +1,128 @@
-# Getting Started with Create React App
+# Claude Desktop
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A desktop application that replicates the Claude chat interface.
 
-## Available Scripts
+## Features
 
-In the project directory, you can run:
+- Clean, responsive UI matching Claude's web interface
+- Persistent chat history with Zustand
+- Multiple chat sessions management
+- Real-time API integration with Claude API
+- Mock mode for testing without an API key
 
-### `npm start`
+## Setup
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+### Prerequisites
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+- Node.js (v14+)
+- npm (v6+)
 
-### `npm test`
+### Environment Variables
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Create a `.env` file in the root directory with your Claude API key:
 
-### `npm run build`
+```
+REACT_APP_CLAUDE_API_KEY=your_api_key_here
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+# Set this to true to force using the mock API for testing
+# REACT_APP_DEBUG_USE_MOCK=true
+```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+The application will automatically run in mock mode if:
+- No API key is provided
+- The `REACT_APP_DEBUG_USE_MOCK` is set to `true`
+- The API connection fails for any reason
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### Running the Application
 
-### `npm run eject`
+For a quick start, simply run:
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+```bash
+./run_claude.sh
+```
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+This script will:
+1. Set up the environment if needed
+2. Start the React development server
+3. Launch the Electron application
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+### Development Setup
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+1. Install dependencies:
+```bash
+npm install
+```
 
-## Learn More
+2. Run the React development server:
+```bash
+npm run start-react
+```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+3. In a separate terminal, run the Electron app:
+```bash
+npm run start-electron
+```
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## Building the Application
+
+To build the application for distribution:
+
+```bash
+# Build the React app
+npm run build
+
+# Package for desktop
+npm run package
+```
+
+This will generate installers in the `dist` folder for your platform.
+
+## Technologies Used
+
+- React with TypeScript for the frontend
+- Electron for desktop integration
+- Tailwind CSS for styling
+- Zustand for state management
+- Claude API for AI conversations
+
+## Developer-Focused Features
+
+Claude Desktop includes special features for software engineers:
+
+- **Code Syntax Highlighting**: Automatic language detection and syntax highlighting
+- **Copyable Code**: One-click copy button on all code blocks
+- **Code Attachments**: Downloadable code files in response messages
+- **Language Support**: Highlighting for JavaScript, TypeScript, Python, Java, Go, Rust, C/C++, C#, HTML, CSS, JSON, and more
+- **Markdown Formatting**: Full markdown support for documentation and explanations
+
+### How Code Blocks Work
+
+The application provides special handling for code, making it easy to work with programming-related content:
+
+1. **Regular Code Blocks**: Code fenced with triple backticks is automatically highlighted:
+   ```
+   ```python
+   def hello():
+       print("Hello, world!")
+   ```
+   ```
+
+2. **Code Attachments**: Code can be presented as downloadable files:
+   ```
+   [filename.js](attachment)
+   ```javascript
+   function example() {
+     console.log("This code can be downloaded as a file");
+   }
+   ```
+   ```
+
+3. **Interactive Code UI**:
+   - Copy button to easily copy code to clipboard
+   - Language identifier in the header
+   - Line numbers for easier reference
+   - Expandable/collapsible code blocks for long snippets
+
+## License
+
+MIT
