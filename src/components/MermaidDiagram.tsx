@@ -6,20 +6,21 @@ interface MermaidDiagramProps {
   filename?: string;
 }
 
-const MermaidDiagram: React.FC<MermaidDiagramProps> = ({ code, filename = 'diagram.mmd' }) => {
+const MermaidDiagram: React.FC<MermaidDiagramProps> = ({ code, filename = 'diagram.md' }) => {
   const [viewMode, setViewMode] = useState<'code' | 'diagram'>('diagram');
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const uniqueId = useRef(`mermaid-${Math.random().toString(36).substring(2, 11)}`);
 
-  // Initialize mermaid
+  // Initialize mermaid with better configuration
   useEffect(() => {
     mermaid.initialize({
-      startOnLoad: true,
+      startOnLoad: false,
       theme: 'neutral',
-      securityLevel: 'strict',
+      securityLevel: 'loose',
       fontFamily: 'monospace',
+      logLevel: 4, // Error level for better debugging
     });
   }, []);
 
@@ -27,26 +28,31 @@ const MermaidDiagram: React.FC<MermaidDiagramProps> = ({ code, filename = 'diagr
   useEffect(() => {
     if (viewMode === 'diagram' && containerRef.current) {
       try {
-        // Clear previous renders
+        // Clear previous renders and errors
         containerRef.current.innerHTML = '';
-        
+        setError(null);
+
         // Create a div for mermaid to render into
         const element = document.createElement('div');
         element.id = uniqueId.current;
+        element.className = 'mermaid';
         element.textContent = code;
         containerRef.current.appendChild(element);
-        
+
         // Render the diagram
-        mermaid.init(undefined, `#${uniqueId.current}`).catch((err) => {
-          console.error('Mermaid rendering error:', err);
-          setError('Failed to render diagram. Check syntax.');
-        });
-        
-        // Clear any previous errors
-        setError(null);
-      } catch (err) {
+        mermaid.render(uniqueId.current, code)
+          .then(({ svg }) => {
+            if (containerRef.current) {
+              containerRef.current.innerHTML = svg;
+            }
+          })
+          .catch((err) => {
+            console.error('Mermaid rendering error:', err);
+            setError(`Failed to render diagram: ${err.message || 'Check syntax'}`);
+          });
+      } catch (err: any) {
         console.error('Mermaid diagram error:', err);
-        setError('Failed to render diagram. Check syntax.');
+        setError(`Diagram error: ${err.message || 'Check syntax'}`);
       }
     }
   }, [code, viewMode]);

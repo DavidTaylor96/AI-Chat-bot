@@ -186,7 +186,7 @@ const MessageParser: React.FC<MessageParserProps> = ({ content }) => {
           <MermaidDiagram
             key={`mermaid-diagram-${i}`}
             code={diagram.code}
-            filename={`diagram-${i + 1}.mmd`}
+            filename={`diagram-${i + 1}.md`}
           />
         ))}
       </div>
@@ -269,7 +269,7 @@ const MessageParser: React.FC<MessageParserProps> = ({ content }) => {
       <MermaidDiagram
         key={`mermaid-diagram-${codeBlocks.length + codeAttachments.length + textAttachments.length + imageAttachments.length + i}`}
         code={diagram.code}
-        filename={`diagram-${i + 1}.mmd`}
+        filename={`diagram-${i + 1}.md`}
       />
     );
   });
