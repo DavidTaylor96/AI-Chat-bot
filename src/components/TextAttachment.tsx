@@ -100,11 +100,11 @@ const TextAttachment: React.FC<TextAttachmentProps> = ({ text, filename = 'text.
       {/* Content */}
       {expanded ? (
         <div className="p-4 bg-white border-t border-claude-border">
-          <pre className="text-sm text-gray-800 whitespace-pre-wrap overflow-auto">{text}</pre>
+          <pre className="text-sm text-gray-800 whitespace-pre-wrap overflow-auto break-words max-w-full">{text}</pre>
         </div>
       ) : (
         <div className="p-4 bg-white border-t border-claude-border">
-          <pre className="text-sm text-gray-500 whitespace-pre-wrap overflow-hidden">{preview}</pre>
+          <pre className="text-sm text-gray-500 whitespace-pre-wrap overflow-hidden break-words max-w-full">{preview}</pre>
         </div>
       )}
     </div>

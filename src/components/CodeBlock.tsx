@@ -101,7 +101,10 @@ const CodeBlock: React.FC<CodeBlockProps> = ({ code, language, filename }) => {
           language={language || 'text'}
           style={vscDarkPlus}
           showLineNumbers={true}
+          wrapLines={true}
+          wrapLongLines={true}
           customStyle={{ margin: 0, padding: '1rem', background: '#1E1E1E' }}
+          codeTagProps={{ style: { whiteSpace: 'pre-wrap', wordBreak: 'break-word' } }}
         >
           {cleanedCode}
         </SyntaxHighlighter>

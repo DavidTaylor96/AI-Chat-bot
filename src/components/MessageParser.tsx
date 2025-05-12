@@ -145,8 +145,10 @@ const MessageParser: React.FC<MessageParserProps> = ({ content }) => {
       imageAttachments.length === 0 &&
       mermaidDiagrams.length === 0) {
     return (
-      <div className="whitespace-pre-wrap">
-        <ReactMarkdown>{content}</ReactMarkdown>
+      <div className="whitespace-pre-wrap break-words max-w-full">
+        <div className="prose max-w-full break-words">
+          <ReactMarkdown>{content}</ReactMarkdown>
+        </div>
       </div>
     );
   }
@@ -156,8 +158,10 @@ const MessageParser: React.FC<MessageParserProps> = ({ content }) => {
       (codeAttachments.length > 0 || textAttachments.length > 0 ||
        imageAttachments.length > 0 || mermaidDiagrams.length > 0)) {
     return (
-      <div className="whitespace-pre-wrap">
-        <ReactMarkdown>{contentWithoutAttachments}</ReactMarkdown>
+      <div className="whitespace-pre-wrap break-words max-w-full">
+        <div className="prose max-w-full break-words">
+          <ReactMarkdown>{contentWithoutAttachments}</ReactMarkdown>
+        </div>
         {codeAttachments.map((attachment, i) => (
           <CodeAttachment
             key={`code-attachment-${i}`}
@@ -203,7 +207,9 @@ const MessageParser: React.FC<MessageParserProps> = ({ content }) => {
     if (block.index > lastIndex) {
       const text = contentWithoutAttachments.substring(lastIndex, block.index);
       parts.push(
-        <ReactMarkdown key={`text-${i}`}>{text}</ReactMarkdown>
+        <div key={`text-${i}`} className="prose max-w-full break-words">
+        <ReactMarkdown>{text}</ReactMarkdown>
+      </div>
       );
     }
 
@@ -223,7 +229,9 @@ const MessageParser: React.FC<MessageParserProps> = ({ content }) => {
   if (lastIndex < contentWithoutAttachments.length) {
     const text = contentWithoutAttachments.substring(lastIndex);
     parts.push(
-      <ReactMarkdown key={`text-${codeBlocks.length}`}>{text}</ReactMarkdown>
+      <div key={`text-${codeBlocks.length}`} className="prose max-w-full break-words">
+        <ReactMarkdown>{text}</ReactMarkdown>
+      </div>
     );
   }
 
@@ -274,7 +282,7 @@ const MessageParser: React.FC<MessageParserProps> = ({ content }) => {
     );
   });
 
-  return <div className="whitespace-pre-wrap">{parts}</div>;
+  return <div className="whitespace-pre-wrap break-words max-w-full">{parts}</div>;
 };
 
 export default MessageParser;

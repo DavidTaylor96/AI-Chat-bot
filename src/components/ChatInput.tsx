@@ -12,6 +12,7 @@ const LARGE_TEXT_THRESHOLD = 1000;
 const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }) => {
   const [message, setMessage] = useState('');
   const [isProcessingImage, setIsProcessingImage] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -22,19 +23,97 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }) => {
     }
   }, [message]);
 
+  // Add clipboard paste handler for images
+  useEffect(() => {
+    const handlePaste = async (e: ClipboardEvent) => {
+      if (isLoading || isProcessingImage) return;
+
+      const items = e.clipboardData?.items;
+      if (!items) return;
+
+      for (let i = 0; i < items.length; i++) {
+        if (items[i].type.indexOf('image') !== -1) {
+          e.preventDefault();
+
+          try {
+            // Clear any previous error
+            setErrorMessage(null);
+            setIsProcessingImage(true);
+            const blob = items[i].getAsFile();
+            if (!blob) continue;
+
+            // Check file size before processing
+            if (blob.size > 10 * 1024 * 1024) { // 10MB
+              setErrorMessage('Pasted image is too large. Maximum size is 10MB.');
+              return;
+            }
+
+            // Create a more meaningful filename with timestamp
+            const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+            const file = new File([blob], `clipboard-image-${timestamp}.png`, { type: 'image/png' });
+
+            const { dataUrl, width, height } = await compressImage(file);
+
+            // Create an image attachment string
+            const imageMessage = createImageAttachmentString(
+              dataUrl,
+              file.name,
+              width,
+              height
+            );
+
+            // Send the image message
+            onSendMessage(imageMessage);
+          } catch (error) {
+            console.error('Failed to process pasted image:', error);
+            if (error instanceof Error) {
+              setErrorMessage(error.message);
+            } else {
+              setErrorMessage('Failed to process the pasted image');
+            }
+          } finally {
+            setIsProcessingImage(false);
+          }
+
+          break;
+        }
+      }
+    };
+
+    // Add event listener to document
+    document.addEventListener('paste', handlePaste);
+
+    // Clean up
+    return () => {
+      document.removeEventListener('paste', handlePaste);
+    };
+  }, [onSendMessage, isLoading, isProcessingImage]);
+
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if ((message.trim() || isProcessingImage) && !isLoading) {
-      // Check if message is large text
-      if (message.length > LARGE_TEXT_THRESHOLD) {
-        // Format large text as an attachment
-        const attachmentMessage = `[large-text.txt](text-attachment)\n\`\`\`text\n${message}\n\`\`\``;
-        onSendMessage(attachmentMessage);
-      } else {
-        // Send regular message
-        onSendMessage(message);
+      try {
+        // Clear any previous error
+        setErrorMessage(null);
+
+        // Check if message is large text
+        if (message.length > LARGE_TEXT_THRESHOLD) {
+          // Format large text as an attachment
+          const attachmentMessage = `[large-text.txt](text-attachment)\n\`\`\`text\n${message}\n\`\`\``;
+          onSendMessage(attachmentMessage);
+        } else {
+          // Send regular message
+          onSendMessage(message);
+        }
+        setMessage('');
+      } catch (error) {
+        if (error instanceof Error) {
+          setErrorMessage(error.message);
+        } else {
+          setErrorMessage('An error occurred while sending your message');
+        }
       }
-      setMessage('');
     }
   };
 
@@ -50,8 +129,18 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }) => {
     if (!files || files.length === 0) return;
 
     try {
+      // Clear any previous error
+      setErrorMessage(null);
       setIsProcessingImage(true);
+
       const file = files[0];
+
+      // Check file size before processing
+      if (file.size > 10 * 1024 * 1024) { // 10MB
+        setErrorMessage('Image is too large. Maximum size is 10MB.');
+        return;
+      }
+
       const { dataUrl, width, height } = await compressImage(file);
 
       // Create an image attachment string
@@ -71,7 +160,11 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }) => {
       }
     } catch (error) {
       console.error('Failed to upload image:', error);
-      // Optionally show an error message to the user
+      if (error instanceof Error) {
+        setErrorMessage(error.message);
+      } else {
+        setErrorMessage('Failed to process the image');
+      }
     } finally {
       setIsProcessingImage(false);
     }
@@ -85,6 +178,18 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }) => {
 
   return (
     <div className="border-t border-claude-border bg-white p-4">
+      {errorMessage && (
+        <div className="max-w-3xl mx-auto mb-2 p-2 bg-red-50 border border-red-200 rounded-md text-red-600 text-sm">
+          <span className="font-medium">Error:</span> {errorMessage}
+          <button
+            className="float-right text-red-400 hover:text-red-600"
+            onClick={() => setErrorMessage(null)}
+            aria-label="Dismiss error"
+          >
+            ×
+          </button>
+        </div>
+      )}
       <form
         onSubmit={handleSubmit}
         className="max-w-3xl mx-auto"

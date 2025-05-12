@@ -2,8 +2,9 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import App from './App';
 
-test('renders learn react link', () => {
+test('renders the chat application', () => {
   render(<App />);
-  const linkElement = screen.getByText(/learn react/i);
-  expect(linkElement).toBeInTheDocument();
+  // Look for the chat input placeholder
+  const inputElement = screen.getByPlaceholderText(/Message Claude/i);
+  expect(inputElement).toBeInTheDocument();
 });
