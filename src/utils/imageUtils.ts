@@ -3,13 +3,13 @@
  */
 
 // Maximum dimension (width or height) for compressed images
-const MAX_IMAGE_DIMENSION = 1000;
+const MAX_IMAGE_DIMENSION = 800; // Reduced from 1000 to save tokens
 // Quality level for JPEG compression (0-1)
-const JPEG_QUALITY = 0.7;
+const JPEG_QUALITY = 0.6; // Reduced from 0.7 to save tokens
 // Initial maximum file size in bytes (1MB)
 const INITIAL_MAX_FILE_SIZE = 1024 * 1024;
-// Absolute maximum file size after multiple compression attempts (500KB)
-const ABSOLUTE_MAX_FILE_SIZE = 500 * 1024;
+// Absolute maximum file size after multiple compression attempts (300KB)
+const ABSOLUTE_MAX_FILE_SIZE = 300 * 1024; // Reduced from 500KB to save tokens
 // Maximum attempts to compress an image
 const MAX_COMPRESSION_ATTEMPTS = 3;
 

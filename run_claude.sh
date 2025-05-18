@@ -30,7 +30,7 @@ if [ ! -f .env ]; then
 fi
 
 # Check for API key and warn if not found
-if grep -q "REACT_APP_Taylor_API_KEY=" .env && ! grep -q "REACT_APP_Taylor_API_KEY=sk-" .env; then
+if grep -q "REACT_APP_API_KEY=" .env && ! grep -q "REACT_APP_API_KEY=sk-" .env; then
   echo "WARNING: No Taylor API key found. The app will run in mock mode."
   echo "To use the real Taylor API, edit the .env file and add your API key."
   echo "Running in mock mode for now..."

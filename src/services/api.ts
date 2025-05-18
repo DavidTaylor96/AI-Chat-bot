@@ -1,14 +1,15 @@
 import axios from 'axios';
 import { Message } from '../store/chatStore';
 import { sendMockMessage } from './mockApi';
+import { windowConversation, createModelParams } from '../utils/apiUtils';
 
 // Using a proxy to avoid CORS issues in development
 // The proxy is configured in src/setupProxy.js
 const API_URL = '/api';  // This will use the proxy defined in setupProxy.js
-const API_KEY = process.env.REACT_APP_Taylor_API_KEY || '';
+const API_KEY = process.env.REACT_APP_API_KEY || '';
 
 if (!API_KEY) {
-  console.warn('Taylor API key is not set. Set REACT_APP_Taylor_API_KEY environment variable.');
+  console.warn('Taylor API key is not set. Set REACT_APP_API_KEY environment variable.');
 }
 
 const api = axios.create({
@@ -41,32 +42,64 @@ export type ApiResponse = {
   type?: string;
 };
 
-const AI_MODEL = 'Taylor-3-7-sonnet-20250219'
+// Available AI models
+export const AI_MODELS = {
+  DEFAULT: 'claude-3-7-sonnet-20250219',
+  SONNET: 'claude-3-7-sonnet-20250219',
+  HAIKU: 'claude-3-5-haiku-20240307'
+};
 
-export const sendMessage = async (messages: Message[]): Promise<ApiResponse> => {
+// Default model settings
+const DEFAULT_MODEL = AI_MODELS.DEFAULT;
+const DEFAULT_MAX_TOKENS = 4000;
+const DEFAULT_TEMPERATURE = 0.7;
+
+// Context window size (number of messages to include)
+const DEFAULT_CONTEXT_WINDOW_SIZE = 10;
+
+export const sendMessage = async (
+  messages: Message[], 
+  modelConfig: { 
+    model?: string, 
+    maxTokens?: number, 
+    temperature?: number,
+    contextWindowSize?: number
+  } = {}
+): Promise<ApiResponse> => {
   try {
     console.log('Sending messages to Taylor API:', messages);
 
     // Check if we should use mock mode (no API key or DEBUG_USE_MOCK=true)
-    const useMockApi = !API_KEY || process.env.REACT_APP_DEBUG_USE_MOCK === 'true';
+    const useMockApi = !API_KEY
 
     if (useMockApi) {
       console.log('Using mock API due to missing API key or debug mode');
       return await sendMockMessage(messages);
     }
 
+    // Get configuration or defaults
+    const model = modelConfig.model || DEFAULT_MODEL;
+    const maxTokens = modelConfig.maxTokens || DEFAULT_MAX_TOKENS;
+    const temperature = modelConfig.temperature || DEFAULT_TEMPERATURE;
+    const contextWindowSize = modelConfig.contextWindowSize || DEFAULT_CONTEXT_WINDOW_SIZE;
+    
+    // Window conversation to reduce token usage
+    const windowedMessages = windowConversation(messages, contextWindowSize);
+    
     // Format messages for Taylor API
-    const formattedMessages = messages.map(msg => ({
+    const formattedMessages = windowedMessages.map(msg => ({
       role: msg.role,
       content: msg.content
     }));
+    
+    console.log(`Sending ${windowedMessages.length} of ${messages.length} messages using ${contextWindowSize} context window`);
 
     // Check payload size
     const payloadSize = JSON.stringify({
-      model: AI_MODEL,
+      model: model,
       messages: formattedMessages,
-      max_tokens: 4000,
-      temperature: 0.7
+      max_tokens: maxTokens,
+      temperature: temperature
     }).length;
 
     console.log(`API payload size: ${(payloadSize / 1024 / 1024).toFixed(2)} MB`);
@@ -77,10 +110,10 @@ export const sendMessage = async (messages: Message[]): Promise<ApiResponse> => 
     }
 
     const response = await api.post('/messages', {
-      model: AI_MODEL,
+      model: model,
       messages: formattedMessages,
-      max_tokens: 4000,
-      temperature: 0.7
+      max_tokens: maxTokens,
+      temperature: temperature
     }, {
       timeout: 120000, // 2 minute timeout for large payloads
       maxContentLength: 100 * 1024 * 1024, // 100MB max content length

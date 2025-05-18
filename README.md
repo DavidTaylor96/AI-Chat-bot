@@ -22,7 +22,7 @@ A desktop application that replicates the Taylor chat interface.
 Create a `.env` file in the root directory with your Taylor API key:
 
 ```
-REACT_APP_Taylor_API_KEY=your_api_key_here
+REACT_APP_API_KEY=your_api_key_here
 
 # Set this to true to force using the mock API for testing
 # REACT_APP_DEBUG_USE_MOCK=true

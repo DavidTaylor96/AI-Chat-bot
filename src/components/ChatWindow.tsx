@@ -2,13 +2,19 @@ import React, { useEffect, useRef, useState } from 'react';
 import useChatStore from '../store/chatStore';
 import ChatMessage from './ChatMessage';
 import ChatInput from './ChatInput';
-import { sendMessage } from '../services/api';
+import { sendMessage, AI_MODELS } from '../services/api';
 
 const ChatWindow: React.FC = () => {
   const { getCurrentSession, addMessage, createSession } = useChatStore();
   const currentSession = getCurrentSession();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [modelSettings, setModelSettings] = useState({
+    model: AI_MODELS.DEFAULT,
+    maxTokens: 4000,
+    temperature: 0.7,
+    contextWindowSize: 10
+  });
 
   // Create a new session if none exists and no sessions are available
   useEffect(() => {
@@ -31,11 +37,11 @@ const ChatWindow: React.FC = () => {
     setIsLoading(true);
     
     try {
-      // Send message to API
+      // Send message to API with model settings
       const response = await sendMessage([
         ...currentSession.messages,
         { id: 'temp', content, role: 'user', timestamp: Date.now() }
-      ]);
+      ], modelSettings);
       
       // Add assistant response
       let responseContent = '';

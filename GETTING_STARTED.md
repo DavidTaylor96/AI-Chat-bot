@@ -35,7 +35,7 @@ To use the real Taylor API (instead of mock mode), you'll need to set up your AP
 1. Create a `.env` file in the root directory (copy from `.env.example`)
 2. Add your Taylor API key from [console.anthropic.com](https://console.anthropic.com)
 ```
-REACT_APP_Taylor_API_KEY=sk-ant-api03-your-key-here
+REACT_APP_API_KEY=sk-ant-api03-your-key-here
 ```
 
 ### Mock Mode
