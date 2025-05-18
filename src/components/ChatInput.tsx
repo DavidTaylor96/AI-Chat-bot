@@ -9,10 +9,26 @@ interface ChatInputProps {
 // Threshold for text to be considered large (in characters)
 const LARGE_TEXT_THRESHOLD = 1000;
 
+interface TextAttachment {
+  id: string;
+  content: string;
+  filename: string;
+  preview: string; // First few characters for preview
+}
+
 const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }) => {
   const [message, setMessage] = useState('');
   const [isProcessingImage, setIsProcessingImage] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [pendingTextAttachments, setPendingTextAttachments] = useState<TextAttachment[]>([]);
+  const [pendingImageAttachments, setPendingImageAttachments] = useState<{
+    id: string;
+    dataUrl: string;
+    filename: string;
+    width: number;
+    height: number;
+  }[]>([]);
+  
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -23,11 +39,39 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }) => {
     }
   }, [message]);
 
-  // Add clipboard paste handler for images
+  // Handle text paste event
+  const handleTextPaste = (text: string) => {
+    // If the pasted text is large, add it as an attachment
+    if (text.length > LARGE_TEXT_THRESHOLD) {
+      const timestamp = Date.now();
+      const newAttachment: TextAttachment = {
+        id: `text-${timestamp}`,
+        content: text,
+        filename: `pasted-text-${timestamp}.txt`,
+        preview: text.substring(0, 100) + (text.length > 100 ? '...' : '')
+      };
+      
+      setPendingTextAttachments([...pendingTextAttachments, newAttachment]);
+      return true; // Indicate that we handled the paste
+    }
+    
+    return false; // Let the default paste behavior occur
+  };
+
+  // Add clipboard paste handler for images and text
   useEffect(() => {
     const handlePaste = async (e: ClipboardEvent) => {
       if (isLoading || isProcessingImage) return;
 
+      // Check for plain text first
+      const text = e.clipboardData?.getData('text/plain');
+      if (text && text.length > LARGE_TEXT_THRESHOLD) {
+        e.preventDefault(); // Prevent default paste
+        handleTextPaste(text);
+        return;
+      }
+
+      // Then check for images
       const items = e.clipboardData?.items;
       if (!items) return;
 
@@ -49,21 +93,22 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }) => {
             }
 
             // Create a more meaningful filename with timestamp
-            const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+            const timestamp = Date.now();
             const file = new File([blob], `clipboard-image-${timestamp}.png`, { type: 'image/png' });
 
             const { dataUrl, width, height } = await compressImage(file);
 
-            // Create an image attachment string
-            const imageMessage = createImageAttachmentString(
-              dataUrl,
-              file.name,
-              width,
-              height
-            );
-
-            // Send the image message
-            onSendMessage(imageMessage);
+            // Add to pending image attachments instead of sending immediately
+            setPendingImageAttachments(prev => [
+              ...prev,
+              {
+                id: `img-${timestamp}`,
+                dataUrl,
+                filename: file.name,
+                width,
+                height
+              }
+            ]);
           } catch (error) {
             console.error('Failed to process pasted image:', error);
             if (error instanceof Error) {
@@ -87,26 +132,48 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }) => {
     return () => {
       document.removeEventListener('paste', handlePaste);
     };
-  }, [onSendMessage, isLoading, isProcessingImage]);
-
+  }, [onSendMessage, isLoading, isProcessingImage, pendingTextAttachments, pendingImageAttachments]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if ((message.trim() || isProcessingImage) && !isLoading) {
+    
+    // Check if we have something to send (message text or attachments)
+    if ((message.trim() || pendingTextAttachments.length > 0 || pendingImageAttachments.length > 0) && !isLoading) {
       try {
         // Clear any previous error
         setErrorMessage(null);
-
-        // Check if message is large text
-        if (message.length > LARGE_TEXT_THRESHOLD) {
-          // Format large text as an attachment
-          const attachmentMessage = `[large-text.txt](text-attachment)\n\`\`\`text\n${message}\n\`\`\``;
-          onSendMessage(attachmentMessage);
-        } else {
-          // Send regular message
-          onSendMessage(message);
-        }
+        
+        let finalMessage = message;
+        
+        // Add text attachments to the message
+        pendingTextAttachments.forEach(attachment => {
+          const attachmentString = `[${attachment.filename}](text-attachment)\n\`\`\`text\n${attachment.content}\n\`\`\``;
+          finalMessage = finalMessage.trim() 
+            ? `${finalMessage}\n\n${attachmentString}` 
+            : attachmentString;
+        });
+        
+        // Add image attachments to the message
+        pendingImageAttachments.forEach(img => {
+          const imageAttachment = createImageAttachmentString(
+            img.dataUrl,
+            img.filename,
+            img.width,
+            img.height
+          );
+          
+          finalMessage = finalMessage.trim() 
+            ? `${finalMessage}\n\n${imageAttachment}` 
+            : imageAttachment;
+        });
+        
+        // Send the final message with all attachments
+        onSendMessage(finalMessage);
+        
+        // Clear everything
         setMessage('');
+        setPendingTextAttachments([]);
+        setPendingImageAttachments([]);
       } catch (error) {
         if (error instanceof Error) {
           setErrorMessage(error.message);
@@ -143,16 +210,18 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }) => {
 
       const { dataUrl, width, height } = await compressImage(file);
 
-      // Create an image attachment string
-      const imageMessage = createImageAttachmentString(
-        dataUrl,
-        file.name,
-        width,
-        height
-      );
-
-      // Send the image message
-      onSendMessage(imageMessage);
+      // Add to pending image attachments instead of sending immediately
+      const timestamp = Date.now();
+      setPendingImageAttachments(prev => [
+        ...prev,
+        {
+          id: `img-${timestamp}`,
+          dataUrl,
+          filename: file.name,
+          width,
+          height
+        }
+      ]);
 
       // Reset the file input
       if (fileInputRef.current) {
@@ -176,8 +245,18 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }) => {
     }
   };
 
+  // Remove a text attachment
+  const removeTextAttachment = (id: string) => {
+    setPendingTextAttachments(pendingTextAttachments.filter(att => att.id !== id));
+  };
+
+  // Remove an image attachment
+  const removeImageAttachment = (id: string) => {
+    setPendingImageAttachments(pendingImageAttachments.filter(img => img.id !== id));
+  };
+
   return (
-    <div className="border-t border-claude-border bg-white p-4">
+    <div className="border-t border-Taylor-border bg-white p-4">
       {errorMessage && (
         <div className="max-w-3xl mx-auto mb-2 p-2 bg-red-50 border border-red-200 rounded-md text-red-600 text-sm">
           <span className="font-medium">Error:</span> {errorMessage}
@@ -190,18 +269,80 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }) => {
           </button>
         </div>
       )}
+      
       <form
         onSubmit={handleSubmit}
         className="max-w-3xl mx-auto"
       >
+        {/* Attachment preview area */}
+        {(pendingTextAttachments.length > 0 || pendingImageAttachments.length > 0) && (
+          <div className="mb-3 border border-Taylor-border rounded-lg p-3 bg-gray-50">
+            <div className="text-sm text-gray-500 mb-2">Attachments:</div>
+            
+            <div className="flex flex-wrap gap-2">
+              {/* Text attachment previews */}
+              {pendingTextAttachments.map(attachment => (
+                <div 
+                  key={attachment.id} 
+                  className="flex items-center bg-white border border-gray-200 rounded-md p-2 pr-3 max-w-full"
+                >
+                  <div className="flex-shrink-0 mr-2 text-gray-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-medium text-gray-700 truncate">{attachment.filename}</div>
+                    <div className="text-xs text-gray-500 truncate">{attachment.preview}</div>
+                  </div>
+                  <button 
+                    type="button"
+                    onClick={() => removeTextAttachment(attachment.id)}
+                    className="ml-2 text-gray-400 hover:text-gray-600"
+                    aria-label="Remove attachment"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+              ))}
+              
+              {/* Image attachment previews */}
+              {pendingImageAttachments.map(attachment => (
+                <div
+                  key={attachment.id}
+                  className="relative inline-block border border-gray-200 rounded-md overflow-hidden"
+                >
+                  <img
+                    src={attachment.dataUrl}
+                    alt={attachment.filename}
+                    className="h-16 w-auto object-cover"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeImageAttachment(attachment.id)}
+                    className="absolute top-0 right-0 bg-gray-800 bg-opacity-70 text-white rounded-bl-md p-0.5"
+                    aria-label="Remove attachment"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        
         <div className="relative">
           <textarea
             ref={textareaRef}
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Message Claude..."
-            className="w-full border border-claude-border rounded-lg py-3 px-4 pr-16 pl-12 resize-none overflow-hidden focus:outline-none focus:ring-2 focus:ring-claude-purple focus:border-transparent"
+            placeholder="Message Taylor..."
+            className="w-full border border-Taylor-border rounded-lg py-3 px-4 pr-16 pl-12 resize-none overflow-hidden focus:outline-none focus:ring-2 focus:ring-Taylor-purple focus:border-transparent"
             rows={1}
             disabled={isLoading || isProcessingImage}
           />
@@ -212,7 +353,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }) => {
             onClick={handleImageButtonClick}
             disabled={isLoading || isProcessingImage}
             className={`absolute left-3 bottom-3 rounded-md p-1 ${
-              !isLoading && !isProcessingImage ? 'text-gray-500 hover:text-claude-purple hover:bg-gray-100' : 'text-gray-400'
+              !isLoading && !isProcessingImage ? 'text-gray-500 hover:text-Taylor-purple hover:bg-gray-100' : 'text-gray-400'
             }`}
             title="Upload image"
           >
@@ -233,9 +374,15 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }) => {
           {/* Send button */}
           <button
             type="submit"
-            disabled={(!message.trim() && !isProcessingImage) || isLoading}
+            disabled={(
+              !message.trim() && 
+              pendingTextAttachments.length === 0 && 
+              pendingImageAttachments.length === 0
+            ) || isLoading || isProcessingImage}
             className={`absolute right-3 bottom-3 rounded-md p-1 ${
-              (message.trim() || isProcessingImage) && !isLoading ? 'text-claude-purple hover:bg-gray-100' : 'text-gray-400'
+              (message.trim() || pendingTextAttachments.length > 0 || pendingImageAttachments.length > 0) && !isLoading && !isProcessingImage 
+                ? 'text-Taylor-purple hover:bg-gray-100' 
+                : 'text-gray-400'
             }`}
           >
             {isProcessingImage ? (

@@ -134,7 +134,7 @@ const useChatStore = create<ChatStore>()(
       },
     }),
     {
-      name: 'claude-chat-storage',
+      name: 'Taylor-chat-storage',
     }
   )
 );

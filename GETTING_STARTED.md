@@ -1,6 +1,6 @@
-# Getting Started with Claude Desktop
+# Getting Started with Taylor Desktop
 
-Claude Desktop is designed for software engineers and developers who want to use Claude's AI capabilities within a desktop environment. This guide will help you get started with the application.
+Taylor Desktop is designed for software engineers and developers who want to use Taylor's AI capabilities within a desktop environment. This guide will help you get started with the application.
 
 ## Installation
 
@@ -12,8 +12,8 @@ Claude Desktop is designed for software engineers and developers who want to use
 
 1. Clone the repository
 ```bash
-git clone https://github.com/yourusername/claude-desktop.git
-cd claude-desktop
+git clone https://github.com/yourusername/Taylor-desktop.git
+cd Taylor-desktop
 ```
 
 2. Install dependencies
@@ -23,19 +23,19 @@ npm install
 
 3. Run the application
 ```bash
-./run_claude.sh
+./run_Taylor.sh
 ```
 
 ## Configuration
 
 ### API Key
 
-To use the real Claude API (instead of mock mode), you'll need to set up your API key:
+To use the real Taylor API (instead of mock mode), you'll need to set up your API key:
 
 1. Create a `.env` file in the root directory (copy from `.env.example`)
-2. Add your Claude API key from [console.anthropic.com](https://console.anthropic.com)
+2. Add your Taylor API key from [console.anthropic.com](https://console.anthropic.com)
 ```
-REACT_APP_CLAUDE_API_KEY=sk-ant-api03-your-key-here
+REACT_APP_Taylor_API_KEY=sk-ant-api03-your-key-here
 ```
 
 ### Mock Mode
@@ -50,7 +50,7 @@ If you don't have an API key or want to test the application without making API 
 
 ### Chat Interface
 
-The application provides a chat interface similar to Claude's web interface:
+The application provides a chat interface similar to Taylor's web interface:
 
 - Enter your message in the input box at the bottom
 - Press Enter to send the message
@@ -58,7 +58,7 @@ The application provides a chat interface similar to Claude's web interface:
 
 ### Working with Code
 
-Claude Desktop has special features for software engineers:
+Taylor Desktop has special features for software engineers:
 
 1. **Viewing Code**:
    - Code blocks are automatically syntax highlighted
@@ -100,7 +100,7 @@ This creates packages for your platform in the `dist/` directory.
 
 ### API Connection Issues
 
-If you're having trouble connecting to the Claude API:
+If you're having trouble connecting to the Taylor API:
 
 1. Verify your API key is correct
 2. Check that your internet connection is working

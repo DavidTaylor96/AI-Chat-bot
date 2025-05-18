@@ -29,11 +29,11 @@ const Sidebar: React.FC = () => {
   };
 
   return (
-    <div className="h-screen w-64 bg-claude-gray border-r border-claude-border flex flex-col">
+    <div className="h-screen w-64 bg-Taylor-gray border-r border-Taylor-border flex flex-col">
       <div className="p-4">
         <button
           onClick={handleCreateSession}
-          className="w-full py-2 px-4 bg-white border border-claude-border rounded-md hover:bg-gray-50 transition-colors flex items-center justify-center"
+          className="w-full py-2 px-4 bg-white border border-Taylor-border rounded-md hover:bg-gray-50 transition-colors flex items-center justify-center"
         >
           <span className="mr-2">+</span> New chat
         </button>
@@ -43,7 +43,7 @@ const Sidebar: React.FC = () => {
         {sortedSessions.map((session) => (
           <div
             key={session.id}
-            className={`p-3 border-b border-claude-border cursor-pointer ${
+            className={`p-3 border-b border-Taylor-border cursor-pointer ${
               currentSessionId === session.id ? 'bg-white' : 'hover:bg-gray-100'
             }`}
             onClick={() => setCurrentSession(session.id)}

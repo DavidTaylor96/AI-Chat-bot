@@ -6,7 +6,7 @@ describe('Mermaid Diagram Rendering', () => {
   beforeAll(async () => {
     await page.goto('http://localhost:3000');
     // Wait for the app to load
-    await page.waitForSelector('textarea[placeholder="Message Claude..."]');
+    await page.waitForSelector('textarea[placeholder="Message Taylor..."]');
   });
 
   test('Mermaid diagrams should render correctly', async () => {

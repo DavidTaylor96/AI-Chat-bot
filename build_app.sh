@@ -2,9 +2,9 @@
 
 # Print banner
 echo "=================================="
-echo "  CLAUDE DESKTOP BUILD SCRIPT   "
+echo "  Taylor DESKTOP BUILD SCRIPT   "
 echo "=================================="
-echo "Building Claude Desktop application for distribution"
+echo "Building Taylor Desktop application for distribution"
 echo ""
 
 # Check for required dependencies

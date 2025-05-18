@@ -145,10 +145,8 @@ const MessageParser: React.FC<MessageParserProps> = ({ content }) => {
       imageAttachments.length === 0 &&
       mermaidDiagrams.length === 0) {
     return (
-      <div className="whitespace-pre-wrap break-words max-w-full">
-        <div className="prose max-w-full break-words">
-          <ReactMarkdown>{content}</ReactMarkdown>
-        </div>
+      <div className="whitespace-pre-wrap break-words max-w-full text-gray-800">
+         {content}
       </div>
     );
   }
@@ -158,10 +156,8 @@ const MessageParser: React.FC<MessageParserProps> = ({ content }) => {
       (codeAttachments.length > 0 || textAttachments.length > 0 ||
        imageAttachments.length > 0 || mermaidDiagrams.length > 0)) {
     return (
-      <div className="whitespace-pre-wrap break-words max-w-full">
-        <div className="prose max-w-full break-words">
-          <ReactMarkdown>{contentWithoutAttachments}</ReactMarkdown>
-        </div>
+      <div className="whitespace-pre-wrap break-words max-w-full text-gray-800">
+         {contentWithoutAttachments}
         {codeAttachments.map((attachment, i) => (
           <CodeAttachment
             key={`code-attachment-${i}`}
@@ -207,9 +203,9 @@ const MessageParser: React.FC<MessageParserProps> = ({ content }) => {
     if (block.index > lastIndex) {
       const text = contentWithoutAttachments.substring(lastIndex, block.index);
       parts.push(
-        <div key={`text-${i}`} className="prose max-w-full break-words">
-        <ReactMarkdown>{text}</ReactMarkdown>
-      </div>
+        <div key={`text-${i}`} className="text-gray-800">
+          {text}
+        </div>
       );
     }
 
@@ -229,8 +225,9 @@ const MessageParser: React.FC<MessageParserProps> = ({ content }) => {
   if (lastIndex < contentWithoutAttachments.length) {
     const text = contentWithoutAttachments.substring(lastIndex);
     parts.push(
-      <div key={`text-${codeBlocks.length}`} className="prose max-w-full break-words">
-        <ReactMarkdown>{text}</ReactMarkdown>
+      <div key={`text-${codeBlocks.length}`} className="text-gray-800">
+        {/* <ReactMarkdown components={markdownComponents}>{text}</ReactMarkdown> */}
+        <p>{text}</p>
       </div>
     );
   }

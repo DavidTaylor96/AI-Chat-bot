@@ -97,9 +97,9 @@ const MermaidDiagram: React.FC<MermaidDiagramProps> = ({ code, filename = 'diagr
   };
 
   return (
-    <div className="border border-claude-border rounded-lg my-4 overflow-hidden bg-white shadow-sm">
+    <div className="border border-Taylor-border rounded-lg my-4 overflow-hidden bg-white shadow-sm">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 bg-gray-50 border-b border-claude-border">
+      <div className="flex items-center justify-between px-4 py-3 bg-gray-50 border-b border-Taylor-border">
         <div className="flex items-center">
           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
@@ -109,7 +109,7 @@ const MermaidDiagram: React.FC<MermaidDiagramProps> = ({ code, filename = 'diagr
         <div className="flex space-x-2">
           <button
             onClick={handleCopy}
-            className="text-gray-500 hover:text-claude-purple transition-colors p-1 rounded"
+            className="text-gray-500 hover:text-Taylor-purple transition-colors p-1 rounded"
             title="Copy code"
           >
             {copied ? (
@@ -125,7 +125,7 @@ const MermaidDiagram: React.FC<MermaidDiagramProps> = ({ code, filename = 'diagr
           </button>
           <button
             onClick={handleDownload}
-            className="text-gray-500 hover:text-claude-purple transition-colors p-1 rounded"
+            className="text-gray-500 hover:text-Taylor-purple transition-colors p-1 rounded"
             title={viewMode === 'code' ? "Download code" : "Download SVG"}
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -134,7 +134,7 @@ const MermaidDiagram: React.FC<MermaidDiagramProps> = ({ code, filename = 'diagr
           </button>
           <button
             onClick={toggleViewMode}
-            className="text-gray-500 hover:text-claude-purple transition-colors p-1 rounded"
+            className="text-gray-500 hover:text-Taylor-purple transition-colors p-1 rounded"
             title={viewMode === 'code' ? "Show diagram" : "Show code"}
           >
             {viewMode === 'code' ? (
@@ -152,7 +152,7 @@ const MermaidDiagram: React.FC<MermaidDiagramProps> = ({ code, filename = 'diagr
       </div>
       
       {/* Content */}
-      <div className="border-t border-claude-border">
+      <div className="border-t border-Taylor-border">
         {viewMode === 'code' ? (
           <div className="p-4 bg-gray-50">
             <pre className="text-sm text-gray-800 whitespace-pre-wrap overflow-auto">{code}</pre>

@@ -122,7 +122,7 @@ export const sendMockMessage = async (messages: Message[]) => {
     return {
       id: 'mock-response-' + Date.now(),
       content: "I didn't receive a message to respond to.",
-      model: 'claude-mock',
+      model: 'Taylor-mock',
       role: 'assistant',
       type: 'message'
     };
@@ -186,7 +186,7 @@ ${sampleCodeBlocks.java}
 This demonstrates Java's Stream API for functional-style operations on collections.`;
   }
   else if (userMessage.includes('hello') || userMessage.includes('hi ')) {
-    response = "Hello! I'm Claude (mock mode). How can I assist you today? I'm particularly good at helping with code examples and software engineering questions.";
+    response = "Hello! I'm Taylor (mock mode). How can I assist you today? I'm particularly good at helping with code examples and software engineering questions.";
   } 
   else if (userMessage.includes('help')) {
     response = `I can help with various software engineering tasks! You can ask me about:
@@ -234,7 +234,7 @@ Or you can just say "Show me a code example" and I'll provide a random one.`;
   return {
     id: 'mock-response-' + Date.now(),
     content: response,
-    model: 'claude-mock',
+    model: 'Taylor-mock',
     role: 'assistant',
     type: 'message'
   };

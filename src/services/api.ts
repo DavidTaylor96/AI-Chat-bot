@@ -5,10 +5,10 @@ import { sendMockMessage } from './mockApi';
 // Using a proxy to avoid CORS issues in development
 // The proxy is configured in src/setupProxy.js
 const API_URL = '/api';  // This will use the proxy defined in setupProxy.js
-const API_KEY = process.env.REACT_APP_CLAUDE_API_KEY || '';
+const API_KEY = process.env.REACT_APP_Taylor_API_KEY || '';
 
 if (!API_KEY) {
-  console.warn('Claude API key is not set. Set REACT_APP_CLAUDE_API_KEY environment variable.');
+  console.warn('Taylor API key is not set. Set REACT_APP_Taylor_API_KEY environment variable.');
 }
 
 const api = axios.create({
@@ -23,7 +23,7 @@ const api = axios.create({
 
 // Update to newer API format if needed
 if (API_KEY && API_KEY.startsWith('sk-')) {
-  // Using API Key format for newer Claude API versions
+  // Using API Key format for newer Taylor API versions
   api.defaults.headers.common['Authorization'] = `Bearer ${API_KEY}`;
   delete api.defaults.headers.common['x-api-key'];
 }
@@ -41,9 +41,11 @@ export type ApiResponse = {
   type?: string;
 };
 
+const AI_MODEL = 'Taylor-3-7-sonnet-20250219'
+
 export const sendMessage = async (messages: Message[]): Promise<ApiResponse> => {
   try {
-    console.log('Sending messages to Claude API:', messages);
+    console.log('Sending messages to Taylor API:', messages);
 
     // Check if we should use mock mode (no API key or DEBUG_USE_MOCK=true)
     const useMockApi = !API_KEY || process.env.REACT_APP_DEBUG_USE_MOCK === 'true';
@@ -53,7 +55,7 @@ export const sendMessage = async (messages: Message[]): Promise<ApiResponse> => 
       return await sendMockMessage(messages);
     }
 
-    // Format messages for Claude API
+    // Format messages for Taylor API
     const formattedMessages = messages.map(msg => ({
       role: msg.role,
       content: msg.content
@@ -61,7 +63,7 @@ export const sendMessage = async (messages: Message[]): Promise<ApiResponse> => 
 
     // Check payload size
     const payloadSize = JSON.stringify({
-      model: 'claude-3-opus-20240229',
+      model: AI_MODEL,
       messages: formattedMessages,
       max_tokens: 4000,
       temperature: 0.7
@@ -75,7 +77,7 @@ export const sendMessage = async (messages: Message[]): Promise<ApiResponse> => 
     }
 
     const response = await api.post('/messages', {
-      model: 'claude-3-opus-20240229',
+      model: AI_MODEL,
       messages: formattedMessages,
       max_tokens: 4000,
       temperature: 0.7
@@ -85,7 +87,7 @@ export const sendMessage = async (messages: Message[]): Promise<ApiResponse> => 
       maxBodyLength: 100 * 1024 * 1024 // 100MB max body length
     });
 
-    console.log('Claude API response:', response.data);
+    console.log('Taylor API response:', response.data);
     
     // Handle different response formats
     let processedResponse = response.data;
@@ -102,7 +104,7 @@ export const sendMessage = async (messages: Message[]): Promise<ApiResponse> => 
     
     return processedResponse;
   } catch (error: any) {
-    console.error('Error sending message to Claude API:', error);
+    console.error('Error sending message to Taylor API:', error);
 
     // Format error message for UI display
     if (error.response) {

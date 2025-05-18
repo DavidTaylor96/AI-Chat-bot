@@ -2,9 +2,9 @@
 
 # Print banner
 echo "=================================="
-echo "    CLAUDE DESKTOP FOR CODERS    "
+echo "    Taylor DESKTOP FOR CODERS    "
 echo "=================================="
-echo "A desktop client for Claude AI with special features for developers"
+echo "A desktop client for Taylor AI with special features for developers"
 echo ""
 
 # Start in mock mode for testing

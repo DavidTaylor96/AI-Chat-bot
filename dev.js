@@ -2,9 +2,9 @@ const { exec, spawn } = require('child_process');
 const readline = require('readline');
 
 console.log('==================================');
-console.log('    CLAUDE DESKTOP FOR CODERS    ');
+console.log('    Taylor DESKTOP FOR CODERS    ');
 console.log('==================================');
-console.log('A desktop client for Claude AI with special features for developers');
+console.log('A desktop client for Taylor AI with special features for developers');
 console.log('');
 
 // Start React server

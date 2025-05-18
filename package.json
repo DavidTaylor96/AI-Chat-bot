@@ -1,5 +1,5 @@
 {
-  "name": "claude-desktop",
+  "name": "Taylor-desktop",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -77,8 +77,8 @@
     "wait-on": "^8.0.3"
   },
   "build": {
-    "appId": "com.claude.desktop",
-    "productName": "Claude Desktop",
+    "appId": "com.Taylor.desktop",
+    "productName": "Taylor Desktop",
     "files": [
       "build/**/*",
       "node_modules/**/*"

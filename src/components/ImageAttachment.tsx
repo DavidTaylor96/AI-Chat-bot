@@ -36,9 +36,9 @@ const ImageAttachment: React.FC<ImageAttachmentProps> = ({
     : { maxWidth: '100%', maxHeight: '300px' }; // Limited size in collapsed view
 
   return (
-    <div className="border border-claude-border rounded-lg my-4 overflow-hidden bg-white shadow-sm">
+    <div className="border border-Taylor-border rounded-lg my-4 overflow-hidden bg-white shadow-sm">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 bg-gray-50 border-b border-claude-border">
+      <div className="flex items-center justify-between px-4 py-3 bg-gray-50 border-b border-Taylor-border">
         <div className="flex items-center">
           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -48,7 +48,7 @@ const ImageAttachment: React.FC<ImageAttachmentProps> = ({
         <div className="flex space-x-2">
           <button
             onClick={handleDownload}
-            className="text-gray-500 hover:text-claude-purple transition-colors p-1 rounded"
+            className="text-gray-500 hover:text-Taylor-purple transition-colors p-1 rounded"
             title="Download image"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -57,7 +57,7 @@ const ImageAttachment: React.FC<ImageAttachmentProps> = ({
           </button>
           <button
             onClick={handleExpand}
-            className="text-gray-500 hover:text-claude-purple transition-colors p-1 rounded"
+            className="text-gray-500 hover:text-Taylor-purple transition-colors p-1 rounded"
             title={expanded ? "Collapse" : "Expand"}
           >
             {expanded ? (
@@ -86,7 +86,7 @@ const ImageAttachment: React.FC<ImageAttachmentProps> = ({
       
       {/* Footer/Info (only shown in collapsed view) */}
       {!expanded && width && height && (
-        <div className="p-2 bg-gray-50 text-xs text-gray-500 border-t border-claude-border">
+        <div className="p-2 bg-gray-50 text-xs text-gray-500 border-t border-Taylor-border">
           <span>{width} × {height} px</span>
         </div>
       )}

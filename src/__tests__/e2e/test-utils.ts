@@ -5,7 +5,7 @@ export const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 // Helper function to send a message in the chat
 export const sendMessage = async (page: Page, message: string) => {
-  await page.type('textarea[placeholder="Message Claude..."]', message);
+  await page.type('textarea[placeholder="Message Taylor..."]', message);
   await page.click('button[type="submit"]');
   // Wait for response
   await sleep(1000);

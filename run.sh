@@ -1,12 +1,12 @@
 #!/bin/bash
 
 echo "=================================="
-echo "    CLAUDE DESKTOP FOR CODERS    "
+echo "    Taylor DESKTOP FOR CODERS    "
 echo "=================================="
-echo "A desktop client for Claude AI with special features for developers"
+echo "A desktop client for Taylor AI with special features for developers"
 echo ""
 
-echo "Starting Claude Desktop..."
+echo "Starting Taylor Desktop..."
 
 # For development mode (React + Electron)
 if [ "$1" == "dev" ]; then

@@ -6,19 +6,19 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        'claude-purple': '#7F5BD5',
-        'claude-background': '#FFFFFF',
-        'claude-gray': '#F9FAFB',
-        'claude-border': '#E5E7EB',
-        'claude-text': '#374151',
-        'claude-input-text': '#111827',
+        'Taylor-purple': '#7F5BD5',
+        'Taylor-background': '#FFFFFF',
+        'Taylor-gray': '#F9FAFB',
+        'Taylor-border': '#E5E7EB',
+        'Taylor-text': '#374151',
+        'Taylor-input-text': '#111827',
       },
       typography: (theme) => ({
         DEFAULT: {
           css: {
-            color: theme('colors.claude-text'),
+            color: theme('colors.Taylor-text'),
             a: {
-              color: theme('colors.claude-purple'),
+              color: theme('colors.Taylor-purple'),
               '&:hover': {
                 color: '#6842C2',
               },

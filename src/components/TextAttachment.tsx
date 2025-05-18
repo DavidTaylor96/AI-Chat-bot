@@ -38,9 +38,9 @@ const TextAttachment: React.FC<TextAttachmentProps> = ({ text, filename = 'text.
   const characters = text.length;
 
   return (
-    <div className="border border-claude-border rounded-lg my-4 overflow-hidden bg-white shadow-sm">
+    <div className="border border-Taylor-border rounded-lg my-4 overflow-hidden bg-white shadow-sm">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 bg-gray-50 border-b border-claude-border">
+      <div className="flex items-center justify-between px-4 py-3 bg-gray-50 border-b border-Taylor-border">
         <div className="flex items-center">
           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -50,7 +50,7 @@ const TextAttachment: React.FC<TextAttachmentProps> = ({ text, filename = 'text.
         <div className="flex space-x-2">
           <button
             onClick={handleCopy}
-            className="text-gray-500 hover:text-claude-purple transition-colors p-1 rounded"
+            className="text-gray-500 hover:text-Taylor-purple transition-colors p-1 rounded"
             title="Copy text"
           >
             {copied ? (
@@ -66,7 +66,7 @@ const TextAttachment: React.FC<TextAttachmentProps> = ({ text, filename = 'text.
           </button>
           <button
             onClick={handleDownload}
-            className="text-gray-500 hover:text-claude-purple transition-colors p-1 rounded"
+            className="text-gray-500 hover:text-Taylor-purple transition-colors p-1 rounded"
             title="Download file"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -75,7 +75,7 @@ const TextAttachment: React.FC<TextAttachmentProps> = ({ text, filename = 'text.
           </button>
           <button
             onClick={() => setExpanded(!expanded)}
-            className="text-gray-500 hover:text-claude-purple transition-colors p-1 rounded"
+            className="text-gray-500 hover:text-Taylor-purple transition-colors p-1 rounded"
             title={expanded ? "Collapse" : "Expand"}
           >
             {expanded ? (
@@ -92,18 +92,18 @@ const TextAttachment: React.FC<TextAttachmentProps> = ({ text, filename = 'text.
       </div>
       
       {/* Content preview */}
-      <div className="p-3 bg-gray-50 text-xs text-gray-500 border-b border-claude-border">
+      <div className="p-3 bg-gray-50 text-xs text-gray-500 border-b border-Taylor-border">
         <span className="mr-4">{lines} line{lines !== 1 ? 's' : ''}</span>
         <span>{characters} character{characters !== 1 ? 's' : ''}</span>
       </div>
       
       {/* Content */}
       {expanded ? (
-        <div className="p-4 bg-white border-t border-claude-border">
+        <div className="p-4 bg-white border-t border-Taylor-border">
           <pre className="text-sm text-gray-800 whitespace-pre-wrap overflow-auto break-words max-w-full">{text}</pre>
         </div>
       ) : (
-        <div className="p-4 bg-white border-t border-claude-border">
+        <div className="p-4 bg-white border-t border-Taylor-border">
           <pre className="text-sm text-gray-500 whitespace-pre-wrap overflow-hidden break-words max-w-full">{preview}</pre>
         </div>
       )}

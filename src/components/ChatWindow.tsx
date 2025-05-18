@@ -37,8 +37,6 @@ const ChatWindow: React.FC = () => {
         { id: 'temp', content, role: 'user', timestamp: Date.now() }
       ]);
       
-      console.log("API response:", response);
-      
       // Add assistant response
       let responseContent = '';
       
@@ -68,7 +66,7 @@ const ChatWindow: React.FC = () => {
         <div className="text-gray-500">
           <button
             onClick={createSession}
-            className="px-4 py-2 bg-claude-purple text-white rounded-md"
+            className="px-4 py-2 bg-Taylor-purple text-white rounded-md"
           >
             Start a new chat
           </button>
@@ -91,14 +89,14 @@ const ChatWindow: React.FC = () => {
           ))
         )}
         {isLoading && (
-          <div className="py-5 bg-claude-gray">
+          <div className="py-5 bg-Taylor-gray">
             <div className="max-w-3xl mx-auto px-4">
               <div className="flex items-start">
-                <div className="rounded-full w-8 h-8 flex items-center justify-center bg-claude-purple">
+                <div className="rounded-full w-8 h-8 flex items-center justify-center bg-Taylor-purple">
                   <span className="text-white">C</span>
                 </div>
                 <div className="ml-4 flex-1">
-                  <div className="font-medium">Claude</div>
+                  <div className="font-medium">Taylor</div>
                   <div className="mt-1">
                     <div className="animate-pulse flex space-x-1">
                       <div className="h-2 w-2 bg-gray-400 rounded-full"></div>

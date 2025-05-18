@@ -8,7 +8,7 @@ describe('Screenshot Pasting and Compression', () => {
   beforeAll(async () => {
     await page.goto('http://localhost:3000');
     // Wait for the app to load
-    await page.waitForSelector('textarea[placeholder="Message Claude..."]');
+    await page.waitForSelector('textarea[placeholder="Message Taylor..."]');
 
     // Create test fixture directory if it doesn't exist
     const fixturesDir = path.join(__dirname, 'fixtures');
@@ -37,7 +37,7 @@ describe('Screenshot Pasting and Compression', () => {
     });
     
     // Focus the textarea
-    await page.click('textarea[placeholder="Message Claude..."]');
+    await page.click('textarea[placeholder="Message Taylor..."]');
     
     // Simulate pasting the image
     await pasteImage(page, smallImageData);
@@ -90,7 +90,7 @@ describe('Screenshot Pasting and Compression', () => {
     const originalSize = Math.ceil((largeImageData.length * 3) / 4); // Base64 to binary size estimate
     
     // Focus the textarea
-    await page.click('textarea[placeholder="Message Claude..."]');
+    await page.click('textarea[placeholder="Message Taylor..."]');
     
     // Simulate pasting the image
     await pasteImage(page, largeImageData);
@@ -133,7 +133,7 @@ describe('Screenshot Pasting and Compression', () => {
     });
     
     // Focus the textarea
-    await page.click('textarea[placeholder="Message Claude..."]');
+    await page.click('textarea[placeholder="Message Taylor..."]');
     
     // Clear any error banners first if present
     const errorBanners = await page.$$('.bg-red-50');

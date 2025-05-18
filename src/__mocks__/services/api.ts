@@ -4,7 +4,7 @@ const mockApi = {
     data: {
       content: [
         {
-          text: "This is a mock response from Claude API",
+          text: "This is a mock response from Taylor API",
           type: "text"
         }
       ]

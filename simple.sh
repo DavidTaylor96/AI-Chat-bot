@@ -1,9 +1,9 @@
 #!/bin/bash
 
 echo "=================================="
-echo "    CLAUDE DESKTOP - SIMPLE MODE "
+echo "    Taylor DESKTOP - SIMPLE MODE "
 echo "=================================="
-echo "Starting a simple version of Claude Desktop"
+echo "Starting a simple version of Taylor Desktop"
 echo ""
 
 npm run simple &

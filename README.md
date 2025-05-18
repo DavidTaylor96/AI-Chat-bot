@@ -1,13 +1,13 @@
-# Claude Desktop
+# Taylor Desktop
 
-A desktop application that replicates the Claude chat interface.
+A desktop application that replicates the Taylor chat interface.
 
 ## Features
 
-- Clean, responsive UI matching Claude's web interface
+- Clean, responsive UI matching Taylor's web interface
 - Persistent chat history with Zustand
 - Multiple chat sessions management
-- Real-time API integration with Claude API
+- Real-time API integration with Taylor API
 - Mock mode for testing without an API key
 
 ## Setup
@@ -19,10 +19,10 @@ A desktop application that replicates the Claude chat interface.
 
 ### Environment Variables
 
-Create a `.env` file in the root directory with your Claude API key:
+Create a `.env` file in the root directory with your Taylor API key:
 
 ```
-REACT_APP_CLAUDE_API_KEY=your_api_key_here
+REACT_APP_Taylor_API_KEY=your_api_key_here
 
 # Set this to true to force using the mock API for testing
 # REACT_APP_DEBUG_USE_MOCK=true
@@ -38,7 +38,7 @@ The application will automatically run in mock mode if:
 For a quick start, simply run:
 
 ```bash
-./run_claude.sh
+./run_Taylor.sh
 ```
 
 This script will:
@@ -83,11 +83,11 @@ This will generate installers in the `dist` folder for your platform.
 - Electron for desktop integration
 - Tailwind CSS for styling
 - Zustand for state management
-- Claude API for AI conversations
+- Taylor API for AI conversations
 
 ## Developer-Focused Features
 
-Claude Desktop includes special features for software engineers:
+Taylor Desktop includes special features for software engineers:
 
 - **Code Syntax Highlighting**: Automatic language detection and syntax highlighting
 - **Copyable Code**: One-click copy button on all code blocks
