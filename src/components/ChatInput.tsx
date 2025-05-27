@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { compressImage, createImageAttachmentString } from '../utils/imageUtils';
+import { compressImage } from '../utils/imageUtils';
+import ImageStorageService from '../services/imageStorageService';
 
 interface ChatInputProps {
   onSendMessage: (message: string) => void;
@@ -134,7 +135,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }) => {
     };
   }, [onSendMessage, isLoading, isProcessingImage, pendingTextAttachments, pendingImageAttachments]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     // Check if we have something to send (message text or attachments)
@@ -153,19 +154,34 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }) => {
             : attachmentString;
         });
         
-        // Add image attachments to the message
-        pendingImageAttachments.forEach(img => {
-          const imageAttachment = createImageAttachmentString(
-            img.dataUrl,
-            img.filename,
-            img.width,
-            img.height
-          );
-          
-          finalMessage = finalMessage.trim() 
-            ? `${finalMessage}\n\n${imageAttachment}` 
-            : imageAttachment;
-        });
+        // Add image attachments to the message using the storage service
+        const imageStorageService = ImageStorageService.getInstance();
+        
+        for (const img of pendingImageAttachments) {
+          try {
+            const imageRef = await imageStorageService.storeImage(
+              img.dataUrl,
+              img.filename,
+              img.width,
+              img.height
+            );
+            
+            const imageAttachment = imageStorageService.createImageReference(
+              imageRef.id,
+              imageRef.filename,
+              imageRef.width,
+              imageRef.height
+            );
+            
+            finalMessage = finalMessage.trim() 
+              ? `${finalMessage}\n\n${imageAttachment}` 
+              : imageAttachment;
+          } catch (error) {
+            console.error('Failed to store image:', error);
+            setErrorMessage('Failed to process image. Please try again.');
+            return;
+          }
+        }
         
         // Send the final message with all attachments
         onSendMessage(finalMessage);

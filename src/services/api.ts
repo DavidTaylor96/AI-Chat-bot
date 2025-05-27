@@ -3,6 +3,7 @@ import { Message } from '../store/chatStore';
 import { sendMockMessage } from './mockApi';
 import { windowConversation } from '../utils/apiUtils';
 import { RAGService } from './ragService';
+import ImageStorageService from './imageStorageService';
 
 // Using a proxy to avoid CORS issues in development
 // The proxy is configured in src/setupProxy.js
@@ -58,6 +59,46 @@ const DEFAULT_TEMPERATURE = 0.7;
 // Context window size (number of messages to include)
 const DEFAULT_CONTEXT_WINDOW_SIZE = 10;
 
+// Number of recent messages to include images for (to reduce token usage)
+const IMAGE_CONTEXT_WINDOW_SIZE = 3;
+
+/**
+ * Optimizes image usage in conversation context
+ * Only expands image references for recent messages to reduce token usage
+ */
+const optimizeImageContext = (messages: Message[]): Message[] => {
+  const imageStorageService = ImageStorageService.getInstance();
+  
+  return messages.map((message, index) => {
+    // Only include full image data for the last N messages
+    const shouldIncludeImages = index >= messages.length - IMAGE_CONTEXT_WINDOW_SIZE;
+    
+    // Get all image references in this message
+    const imageReferences = imageStorageService.parseImageReferences(message.content);
+    
+    if (imageReferences.length === 0) {
+      return message; // No images to process
+    }
+    
+    if (!shouldIncludeImages) {
+      // For older messages, keep just the reference without expanding
+      console.log(`Skipping image expansion for message ${index + 1} (older than ${IMAGE_CONTEXT_WINDOW_SIZE} messages)`);
+      return message;
+    }
+    
+    // For recent messages, expand image references to full data
+    const imageIds = new Set(imageReferences.map(ref => ref.id));
+    const expandedContent = imageStorageService.expandImageReferences(message.content, imageIds);
+    
+    console.log(`Expanded ${imageReferences.length} images for message ${index + 1}`);
+    
+    return {
+      ...message,
+      content: expandedContent
+    };
+  });
+};
+
 export const sendMessage = async (
   messages: Message[], 
   modelConfig: { 
@@ -103,13 +144,16 @@ export const sendMessage = async (
     // Window conversation to reduce token usage
     const windowedMessages = windowConversation(processedMessages, contextWindowSize);
     
+    // Optimize image context to reduce token usage
+    const optimizedMessages = optimizeImageContext(windowedMessages);
+    
     // Format messages for Taylor API
-    const formattedMessages = windowedMessages.map(msg => ({
+    const formattedMessages = optimizedMessages.map(msg => ({
       role: msg.role,
       content: msg.content
     }));
     
-    console.log(`Sending ${windowedMessages.length} of ${messages.length} messages using ${contextWindowSize} context window`);
+    console.log(`Sending ${optimizedMessages.length} of ${messages.length} messages (context: ${contextWindowSize}, image context: ${IMAGE_CONTEXT_WINDOW_SIZE})`);
 
     // Check payload size
     const payloadSize = JSON.stringify({

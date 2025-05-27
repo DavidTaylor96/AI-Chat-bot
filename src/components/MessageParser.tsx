@@ -5,6 +5,7 @@ import CodeAttachment from './CodeAttachment';
 import TextAttachment from './TextAttachment';
 import ImageAttachment from './ImageAttachment';
 import MermaidDiagram from './MermaidDiagram';
+import ImageStorageService from '../services/imageStorageService';
 
 interface MessageParserProps {
   content: string;
@@ -25,6 +26,10 @@ const textAttachmentRegex = /\[([^\]]+)\]\(text-attachment\)\n```(\w+)?\n([\s\S]
 // Regular expression to match image attachments
 // Format: [filename.jpg](image-attachment:width:height)\n```image\nbase64data```
 const imageAttachmentRegex = /\[([^\]]+)\]\(image-attachment:(\d+):(\d+)\)\n```image\n([\s\S]*?)```/g;
+
+// Regular expression to match image references
+// Format: [filename.jpg](image-ref:id:width:height)
+const imageReferenceRegex = /\[([^\]]+)\]\(image-ref:([^:]+):(\d+):(\d+)\)/g;
 
 // Regular expression to match mermaid diagrams
 // Format: ```mermaid\ndiagram code```
@@ -93,6 +98,34 @@ const MessageParser: React.FC<MessageParserProps> = ({ content }) => {
     });
   }
 
+  // Find all image reference blocks in the content
+  const imageReferences: Array<{
+    fullMatch: string;
+    filename: string;
+    id: string;
+    width: number;
+    height: number;
+    dataUrl: string | null;
+    index: number;
+  }> = [];
+
+  const imageStorageService = ImageStorageService.getInstance();
+  let imageReferenceMatch;
+  while ((imageReferenceMatch = imageReferenceRegex.exec(content)) !== null) {
+    const imageId = imageReferenceMatch[2];
+    const storedImage = imageStorageService.getImage(imageId);
+    
+    imageReferences.push({
+      fullMatch: imageReferenceMatch[0],
+      filename: imageReferenceMatch[1],
+      id: imageId,
+      width: parseInt(imageReferenceMatch[3], 10),
+      height: parseInt(imageReferenceMatch[4], 10),
+      dataUrl: storedImage ? storedImage.dataUrl : null,
+      index: imageReferenceMatch.index
+    });
+  }
+
   // Find all mermaid diagram blocks
   const mermaidDiagrams: Array<{
     fullMatch: string;
@@ -111,7 +144,7 @@ const MessageParser: React.FC<MessageParserProps> = ({ content }) => {
 
   // Get the content with all attachments removed
   let contentWithoutAttachments = content;
-  for (const attachment of [...codeAttachments, ...textAttachments, ...imageAttachments]) {
+  for (const attachment of [...codeAttachments, ...textAttachments, ...imageAttachments, ...imageReferences]) {
     contentWithoutAttachments = contentWithoutAttachments.replace(attachment.fullMatch, '');
   }
 
@@ -143,6 +176,7 @@ const MessageParser: React.FC<MessageParserProps> = ({ content }) => {
       codeAttachments.length === 0 &&
       textAttachments.length === 0 &&
       imageAttachments.length === 0 &&
+      imageReferences.length === 0 &&
       mermaidDiagrams.length === 0) {
     return (
       <div className="whitespace-pre-wrap break-words max-w-full text-gray-800">
@@ -154,7 +188,7 @@ const MessageParser: React.FC<MessageParserProps> = ({ content }) => {
   // If we only have attachments, render them with the remaining text
   if (codeBlocks.length === 0 &&
       (codeAttachments.length > 0 || textAttachments.length > 0 ||
-       imageAttachments.length > 0 || mermaidDiagrams.length > 0)) {
+       imageAttachments.length > 0 || imageReferences.length > 0 || mermaidDiagrams.length > 0)) {
     return (
       <div className="whitespace-pre-wrap break-words max-w-full text-gray-800">
          {contentWithoutAttachments}
@@ -181,6 +215,23 @@ const MessageParser: React.FC<MessageParserProps> = ({ content }) => {
             width={attachment.width}
             height={attachment.height}
           />
+        ))}
+        {imageReferences.map((reference, i) => (
+          reference.dataUrl ? (
+            <ImageAttachment
+              key={`image-reference-${i}`}
+              src={reference.dataUrl}
+              filename={reference.filename}
+              width={reference.width}
+              height={reference.height}
+            />
+          ) : (
+            <div key={`missing-image-${i}`} className="border border-red-300 rounded-lg p-4 my-4 bg-red-50">
+              <div className="text-red-600">
+                Missing image: {reference.filename} (ID: {reference.id})
+              </div>
+            </div>
+          )
         ))}
         {mermaidDiagrams.map((diagram, i) => (
           <MermaidDiagram
@@ -266,6 +317,29 @@ const MessageParser: React.FC<MessageParserProps> = ({ content }) => {
         height={attachment.height}
       />
     );
+  });
+
+  // Add image references at the end
+  imageReferences.forEach((reference, i) => {
+    if (reference.dataUrl) {
+      parts.push(
+        <ImageAttachment
+          key={`image-reference-${codeBlocks.length + codeAttachments.length + textAttachments.length + imageAttachments.length + i}`}
+          src={reference.dataUrl}
+          filename={reference.filename}
+          width={reference.width}
+          height={reference.height}
+        />
+      );
+    } else {
+      parts.push(
+        <div key={`missing-image-ref-${i}`} className="border border-red-300 rounded-lg p-4 my-4 bg-red-50">
+          <div className="text-red-600">
+            Missing image: {reference.filename} (ID: {reference.id})
+          </div>
+        </div>
+      );
+    }
   });
 
   // Add mermaid diagrams at the end
