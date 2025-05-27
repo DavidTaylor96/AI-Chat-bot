@@ -1,7 +1,8 @@
 import axios from 'axios';
 import { Message } from '../store/chatStore';
 import { sendMockMessage } from './mockApi';
-import { windowConversation, createModelParams } from '../utils/apiUtils';
+import { windowConversation } from '../utils/apiUtils';
+import { RAGService } from './ragService';
 
 // Using a proxy to avoid CORS issues in development
 // The proxy is configured in src/setupProxy.js
@@ -63,28 +64,44 @@ export const sendMessage = async (
     model?: string, 
     maxTokens?: number, 
     temperature?: number,
-    contextWindowSize?: number
+    contextWindowSize?: number,
+    enableRAG?: boolean
   } = {}
 ): Promise<ApiResponse> => {
   try {
     console.log('Sending messages to Taylor API:', messages);
-
-    // Check if we should use mock mode (no API key or DEBUG_USE_MOCK=true)
-    const useMockApi = !API_KEY
-
-    if (useMockApi) {
-      console.log('Using mock API due to missing API key or debug mode');
-      return await sendMockMessage(messages);
-    }
 
     // Get configuration or defaults
     const model = modelConfig.model || DEFAULT_MODEL;
     const maxTokens = modelConfig.maxTokens || DEFAULT_MAX_TOKENS;
     const temperature = modelConfig.temperature || DEFAULT_TEMPERATURE;
     const contextWindowSize = modelConfig.contextWindowSize || DEFAULT_CONTEXT_WINDOW_SIZE;
+    const enableRAG = modelConfig.enableRAG !== false; // Default to true
+    
+    // Enhance messages with RAG context if enabled
+    let processedMessages = messages;
+    if (enableRAG) {
+      try {
+        const ragService = RAGService.getInstance();
+        const { messages: enhancedMessages } = await ragService.enhanceMessagesWithContext(messages, 3);
+        processedMessages = enhancedMessages;
+        console.log(`Enhanced ${messages.length} messages with RAG context -> ${enhancedMessages.length} messages`);
+      } catch (error) {
+        console.warn('Failed to enhance messages with RAG context:', error);
+        // Continue with original messages if RAG fails
+      }
+    }
+
+    // Check if we should use mock mode (no API key or DEBUG_USE_MOCK=true)
+    const useMockApi = !API_KEY
+
+    if (useMockApi) {
+      console.log('Using mock API due to missing API key or debug mode');
+      return await sendMockMessage(processedMessages);
+    }
     
     // Window conversation to reduce token usage
-    const windowedMessages = windowConversation(messages, contextWindowSize);
+    const windowedMessages = windowConversation(processedMessages, contextWindowSize);
     
     // Format messages for Taylor API
     const formattedMessages = windowedMessages.map(msg => ({

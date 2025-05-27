@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import useChatStore from '../store/chatStore';
+import { DocumentManager } from './DocumentManager';
 
 const Sidebar: React.FC = () => {
+  const [showDocumentManager, setShowDocumentManager] = useState(false);
   const {
     sessions,
     currentSessionId,
@@ -30,12 +32,18 @@ const Sidebar: React.FC = () => {
 
   return (
     <div className="h-screen w-64 bg-Taylor-gray border-r border-Taylor-border flex flex-col">
-      <div className="p-4">
+      <div className="p-4 space-y-2">
         <button
           onClick={handleCreateSession}
           className="w-full py-2 px-4 bg-white border border-Taylor-border rounded-md hover:bg-gray-50 transition-colors flex items-center justify-center"
         >
           <span className="mr-2">+</span> New chat
+        </button>
+        <button
+          onClick={() => setShowDocumentManager(true)}
+          className="w-full py-2 px-4 bg-blue-50 border border-blue-200 text-blue-700 rounded-md hover:bg-blue-100 transition-colors flex items-center justify-center text-sm"
+        >
+          <span className="mr-2">📄</span> Manage Docs
         </button>
       </div>
 
@@ -68,6 +76,11 @@ const Sidebar: React.FC = () => {
           </div>
         ))}
       </div>
+      
+      <DocumentManager 
+        isOpen={showDocumentManager}
+        onClose={() => setShowDocumentManager(false)}
+      />
     </div>
   );
 };
