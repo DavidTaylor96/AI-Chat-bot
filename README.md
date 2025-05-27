@@ -1,13 +1,13 @@
-# Taylor Desktop
+# Claude Desktop
 
-A desktop application that replicates the Taylor chat interface.
+A desktop application that provides a chat interface for Claude AI.
 
 ## Features
 
 - Clean, responsive UI matching Taylor's web interface
 - Persistent chat history with Zustand
 - Multiple chat sessions management
-- Real-time API integration with Taylor API
+- Real-time API integration with Anthropic Claude API
 - Mock mode for testing without an API key
 
 ## Setup
@@ -19,7 +19,7 @@ A desktop application that replicates the Taylor chat interface.
 
 ### Environment Variables
 
-Create a `.env` file in the root directory with your Taylor API key:
+Create a `.env` file in the root directory with your Anthropic API key:
 
 ```
 REACT_APP_API_KEY=your_api_key_here
@@ -38,7 +38,7 @@ The application will automatically run in mock mode if:
 For a quick start, simply run:
 
 ```bash
-./run_Taylor.sh
+./run_claude.sh
 ```
 
 This script will:
@@ -63,6 +63,17 @@ npm run start-react
 npm run start-electron
 ```
 
+### Available Scripts
+
+- `npm start` - Start React development server
+- `npm run build` - Build production React app
+- `npm test` - Run all tests
+- `npm run test:unit` - Run unit tests only
+- `npm run test:e2e` - Run end-to-end tests only
+- `npm run electron-dev` - Development Electron launcher
+- `npm run simple` - Run simplified Electron app
+- `npm run package` - Build distributable packages
+
 ## Building the Application
 
 To build the application for distribution:
@@ -83,11 +94,16 @@ This will generate installers in the `dist` folder for your platform.
 - Electron for desktop integration
 - Tailwind CSS for styling
 - Zustand for state management
-- Taylor API for AI conversations
+- Anthropic Claude API for AI conversations
+- React Markdown for message formatting
+- React Syntax Highlighter for code display
+- Mermaid for diagram rendering
+- Transformers.js for local embedding generation
+- Jest & Puppeteer for testing
 
 ## Developer-Focused Features
 
-Taylor Desktop includes special features for software engineers:
+Claude Desktop includes special features for software engineers:
 
 - **Code Syntax Highlighting**: Automatic language detection and syntax highlighting
 - **Copyable Code**: One-click copy button on all code blocks
