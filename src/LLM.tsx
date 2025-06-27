@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import { ArrowRight, ArrowDown, Database, Server, Monitor, Cpu, HardDrive, Zap } from 'lucide-react';
 
 const LLMSystemArchitecture = () => {
-  const [selectedComponent, setSelectedComponent] = useState(null);
-  const [selectedUseCase, setSelectedUseCase] = useState('weak');
+  const [selectedComponent, setSelectedComponent] = useState<any>(null);
+  const [selectedUseCase, setSelectedUseCase] = useState<any>('weak');
 
-  const useCases = {
+  const useCases:any = {
     weak: {
       clientRequest: `POST /api/chat
 {
@@ -200,7 +200,7 @@ Context Length: 65+ tokens`,
     }
   };
 
-  const componentDetails = {
+  const componentDetails: any = {
     client: {
       title: "Client Applications",
       description: "User interfaces and applications",
@@ -244,7 +244,7 @@ Context Length: 65+ tokens`,
   };
 
   // Component rendering functions
-  const ClientBox = ({ onClick, selected }) => (
+  const ClientBox = ({ onClick, selected }: any) => (
     <div 
       className={`bg-blue-100 border-2 border-blue-400 rounded-lg p-4 cursor-pointer transition-all hover:shadow-lg ${selected ? 'ring-4 ring-blue-300' : ''}`}
       onClick={onClick}
@@ -257,7 +257,7 @@ Context Length: 65+ tokens`,
     </div>
   );
 
-  const ServiceBox = ({ title, icon: Icon, color, bgColor, onClick, selected }) => (
+  const ServiceBox = ({ title, icon: Icon, color, bgColor, onClick, selected }: any) => (
     <div 
       className={`${bgColor} border-2 border-${color}-400 rounded-lg p-4 cursor-pointer transition-all hover:shadow-lg ${selected ? `ring-4 ring-${color}-300` : ''}`}
       onClick={onClick}
@@ -269,7 +269,7 @@ Context Length: 65+ tokens`,
     </div>
   );
 
-  const DatabaseBox = ({ title, icon: Icon, color, bgColor, onClick, selected }) => (
+  const DatabaseBox = ({ title, icon: Icon, color, bgColor, onClick, selected }: any) => (
     <div 
       className={`${bgColor} border-2 border-${color}-400 rounded-lg p-4 cursor-pointer transition-all hover:shadow-lg ${selected ? `ring-4 ring-${color}-300` : ''}`}
       onClick={onClick}
@@ -493,6 +493,234 @@ Context Length: 65+ tokens`,
         </div>
       )}
 
+      {/* Context vs Message Processing */}
+      <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
+        <h3 className="text-xl font-bold mb-6">🔍 Context vs Message Processing</h3>
+        
+        <div className="grid md:grid-cols-2 gap-6 mb-6">
+          {/* Input Structure */}
+          <div className="bg-blue-50 p-4 rounded border">
+            <h4 className="font-semibold mb-3">📋 Request Structure</h4>
+            <pre className="bg-gray-900 text-green-400 p-3 rounded text-sm overflow-x-auto">
+{`POST /api/chat
+{
+  "message": "Fix TypeScript error...",
+  "context": {
+    "file": "src/types.ts",
+    "codebase": "repository-analyzer",
+    "architecture": "parser-pattern"
+  },
+  "system_prompt": "You are an expert...",
+  "conversation_history": [...]
+}`}
+            </pre>
+          </div>
+
+          {/* Token Assembly */}
+          <div className="bg-orange-50 p-4 rounded border">
+            <h4 className="font-semibold mb-3">🔧 How LLM Sees It</h4>
+            <pre className="bg-gray-900 text-yellow-400 p-3 rounded text-sm overflow-x-auto">
+{`Single Token Stream:
+[SYSTEM] You are an expert...
+[CONTEXT] File: src/types.ts
+Architecture: parser-pattern
+[USER] Fix TypeScript error...
+[ASSISTANT]`}
+            </pre>
+          </div>
+        </div>
+
+        <div className="bg-gray-50 p-6 rounded-lg">
+          <h4 className="font-semibold mb-4">⚙️ Processing Steps</h4>
+          <div className="space-y-4">
+            <div className="flex items-start gap-4">
+              <div className="bg-blue-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">1</div>
+              <div>
+                <h5 className="font-medium">API Gateway Parsing</h5>
+                <p className="text-sm text-gray-600">Separates JSON fields: message, context, system_prompt, history</p>
+              </div>
+            </div>
+            
+            <div className="flex items-start gap-4">
+              <div className="bg-green-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">2</div>
+              <div>
+                <h5 className="font-medium">Context Assembly</h5>
+                <p className="text-sm text-gray-600">Preprocessing service combines all parts into single prompt template</p>
+              </div>
+            </div>
+            
+            <div className="flex items-start gap-4">
+              <div className="bg-purple-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">3</div>
+              <div>
+                <h5 className="font-medium">Tokenization</h5>
+                <p className="text-sm text-gray-600">Entire assembled prompt becomes one token stream - LLM sees no distinction</p>
+              </div>
+            </div>
+            
+            <div className="flex items-start gap-4">
+              <div className="bg-red-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">4</div>
+              <div>
+                <h5 className="font-medium">Neural Processing</h5>
+                <p className="text-sm text-gray-600">Attention mechanism weights all tokens equally - no "context" vs "question" distinction</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Template Examples */}
+      <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
+        <h3 className="text-xl font-bold mb-6">📝 Prompt Template Assembly</h3>
+        
+        <div className="space-y-6">
+          <div>
+            <h4 className="font-semibold mb-2">🏗️ How Context Gets Assembled</h4>
+            <div className="bg-gray-900 text-gray-300 p-4 rounded-lg text-sm overflow-x-auto">
+              <pre>{`// Preprocessing Service Logic (TypeScript)
+interface ChatRequest {
+  message: string;
+  context?: {
+    file?: string;
+    codebase?: string;
+    architecture?: string;
+    [key: string]: any;
+  };
+  system_prompt?: string;
+  history?: ConversationTurn[];
+}
+
+interface ConversationTurn {
+  user: string;
+  assistant: string;
+  timestamp?: string;
+}
+
+interface AssembledPrompt {
+  prompt: string;
+  tokenCount: number;
+  hasContext: boolean;
+}
+
+class PromptAssemblyService {
+  private readonly MAX_CONTEXT_LENGTH = 3000;
+  
+  public assemblePrompt(request: ChatRequest): AssembledPrompt {
+    let prompt = "";
+    let tokenCount = 0;
+    
+    // 1. System Prompt (if provided)
+    if (request.system_prompt) {
+      prompt += request.system_prompt + "\\n\\n";
+      tokenCount += this.estimateTokens(request.system_prompt);
+    }
+    
+    // 2. Context Information (structured)
+    if (request.context) {
+      prompt += "Context:\\n";
+      
+      if (request.context.file) {
+        prompt += \`File: \${request.context.file}\\n\`;
+      }
+      
+      if (request.context.architecture) {
+        prompt += \`Architecture: \${request.context.architecture}\\n\`;
+      }
+      
+      if (request.context.codebase) {
+        prompt += \`Codebase: \${request.context.codebase}\\n\`;
+      }
+      
+      // Add any additional context fields
+      Object.entries(request.context).forEach(([key, value]) => {
+        if (!['file', 'architecture', 'codebase'].includes(key)) {
+          prompt += \`\${key}: \${value}\\n\`;
+        }
+      });
+      
+      prompt += "\\n";
+      tokenCount += this.estimateTokens(prompt);
+    }
+    
+    // 3. Conversation History (if any)
+    if (request.history && request.history.length > 0) {
+      const historyPrompt = this.assembleHistory(request.history);
+      prompt += historyPrompt;
+      tokenCount += this.estimateTokens(historyPrompt);
+    }
+    
+    // 4. Current User Message
+    prompt += \`User: \${request.message}\\n\`;
+    prompt += "Assistant: ";
+    tokenCount += this.estimateTokens(request.message);
+    
+    // 5. Validate context length
+    if (tokenCount > this.MAX_CONTEXT_LENGTH) {
+      throw new Error(\`Context too long: \${tokenCount} tokens exceeds limit of \${this.MAX_CONTEXT_LENGTH}\`);
+    }
+    
+    return {
+      prompt,
+      tokenCount,
+      hasContext: !!request.context
+    };
+  }
+  
+  private assembleHistory(history: ConversationTurn[]): string {
+    return history
+      .map(turn => \`User: \${turn.user}\\nAssistant: \${turn.assistant}\\n\\n\`)
+      .join('');
+  }
+  
+  private estimateTokens(text: string): number {
+    // Rough estimation: ~4 characters per token
+    return Math.ceil(text.length / 4);
+  }
+}
+
+// Usage Example
+const promptService = new PromptAssemblyService();
+
+const request: ChatRequest = {
+  message: "Fix TypeScript error 'Property embeddingChunks does not exist on type ParseResult'",
+  context: {
+    file: "src/types.ts",
+    codebase: "repository-analyzer", 
+    architecture: "parser-pattern"
+  },
+  system_prompt: "You are an expert TypeScript developer and code analyst."
+};
+
+const assembled: AssembledPrompt = promptService.assemblePrompt(request);
+console.log(assembled.prompt);`}</pre>
+            </div>
+          </div>
+
+          <div>
+            <h4 className="font-semibold mb-2">📤 Final Assembled Prompt</h4>
+            <div className="bg-blue-50 p-4 rounded border">
+              <pre className="text-sm">{`You are an expert TypeScript developer and code analyst.
+
+Context:
+File: src/types.ts
+Architecture: parser-pattern
+Codebase: repository-analyzer
+
+User: Fix TypeScript error 'Property embeddingChunks does not exist on type ParseResult' in repository analyzer tool. Architecture: BaseParser -> TypeScriptParser -> ParseResult interface. Need to add vector embedding support following existing optional property pattern like interfaces?, typeAliases?
+Assistant:`}</pre>
+            </div>
+          </div>
+
+          <div className="bg-yellow-50 p-4 rounded border">
+            <h4 className="font-semibold mb-2">🔑 Key Insight</h4>
+            <p className="text-sm text-gray-700">
+              <strong>The LLM doesn't distinguish between "context" and "question"</strong> - it sees one continuous token stream. 
+              The preprocessing service is responsible for organizing the information in a way that maximizes attention weights 
+              on the most relevant parts.
+            </p>
+          </div>
+        </div>
+      </div>
+
       {/* Use Case Data Flow */}
       <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
         <h3 className="text-xl font-bold mb-6">🔬 Use Case: Data Flow Examples</h3>
@@ -548,7 +776,7 @@ Context Length: 65+ tokens`,
                 <div className="bg-red-50 p-4 rounded border">
                   <h5 className="font-medium mb-2">🎯 Attention Weights</h5>
                   <div className="space-y-2">
-                    {useCases[selectedUseCase].attention.map((item, idx) => (
+                    {useCases[selectedUseCase].attention.map((item: any, idx: any) => (
                       <div key={idx} className="flex justify-between items-center">
                         <span className="text-sm">{item.token}</span>
                         <div className="flex items-center gap-2 w-32">
@@ -572,7 +800,7 @@ Context Length: 65+ tokens`,
               <h4 className="font-semibold mb-2">🧠 Neural Pattern Activation</h4>
               <div className="bg-orange-50 p-4 rounded border">
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                  {useCases[selectedUseCase].patterns.map((pattern, idx) => (
+                  {useCases[selectedUseCase].patterns.map((pattern: any, idx: any) => (
                     <div key={idx} className="bg-white p-3 rounded border">
                       <div className="text-sm font-medium mb-1">{pattern.name}</div>
                       <div className="flex items-center gap-2">
