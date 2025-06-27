@@ -83,9 +83,49 @@ Context Length: 15 tokens`,
     typeAliases?: TypeAliasInfo[];
     embeddingChunks?: VectorEmbeddingInfo[];  // Add this line
   }
+  
+  // Also add the VectorEmbeddingInfo interface:
+  export interface VectorEmbeddingInfo {
+    id: string;
+    content: string;
+    embedding?: number[];
+    metadata: {
+      file: string;
+      type: 'function' | 'class' | 'interface' | 'component';
+      name: string;
+      lineStart: number;
+      lineEnd: number;
+      language: string;
+    };
+  }
   \`\`\`
 
-  Then implement createEmbeddingChunks() in your TypeScriptParser following the same pattern as other analyzer methods.",
+  Then implement createEmbeddingChunks() in your TypeScriptParser:
+
+  \`\`\`typescript
+  // In src/parsers/typescript-parser.ts
+  private createEmbeddingChunks(): VectorEmbeddingInfo[] {
+    const chunks: VectorEmbeddingInfo[] = [];
+    
+    // Create chunks for functions
+    this.functions.forEach(func => {
+      chunks.push({
+        id: \`\${this.filePath}:function:\${func.name}\`,
+        content: this.getFunctionContent(func.lineStart, func.lineEnd),
+        metadata: {
+          file: this.filePath,
+          type: 'function',
+          name: func.name,
+          lineStart: func.lineStart,
+          lineEnd: func.lineEnd,
+          language: 'typescript'
+        }
+      });
+    });
+    
+    return chunks;
+  }
+  \`\`\`",
   "confidence": 0.95,
   "processing_time": "180ms"
 }`,
@@ -124,7 +164,29 @@ Context Length: 65+ tokens`,
         { name: "Microservices", activation: 0.8 }
       ],
       response: `{
-  "response": "For your TypeScript repository analyzer with microservices architecture, you should implement a comprehensive solution using dependency injection with factory patterns for vector embeddings while following SOLID principles. Consider using a React-based dashboard with GraphQL API endpoints and Docker containerization. You might want to implement OAuth2 authentication with JWT tokens and use Jest for testing with CI/CD deployment pipelines...",
+  "response": "For your TypeScript repository analyzer with microservices architecture, you should implement a comprehensive solution using dependency injection with factory patterns for vector embeddings while following SOLID principles:
+
+  \`\`\`typescript
+  // This response is mixing unrelated concepts (HALLUCINATION)
+  @Injectable()
+  export class VectorEmbeddingMicroservice {
+    constructor(
+      private graphQLApi: GraphQLService,
+      private dockerContainer: ContainerOrchestrator,
+      private jwtAuth: OAuth2Handler
+    ) {}
+    
+    async processReactComponents(): Promise<ParseResult & MicroserviceResponse> {
+      // This makes no sense - mixing React with backend parsing
+      return await this.dockerContainer.deployWithJest({
+        embeddings: this.graphQLApi.generateVectors(),
+        authentication: this.jwtAuth.validateReactProps()
+      });
+    }
+  }
+  \`\`\`
+
+  You should also implement OAuth2 authentication with JWT tokens and use Jest for testing with CI/CD deployment pipelines. Consider using a React-based dashboard with GraphQL endpoints...",
   "confidence": 0.2,
   "processing_time": "890ms",
   "warning": "Response may contain hallucinated content due to context overload"
